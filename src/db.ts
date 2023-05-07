@@ -41,9 +41,9 @@ export class DB {
     }
 
     // returns the 10 contracts that used up most gas in the last 30 days
-    async getTopGasGuzzlersLastMonth(): Promise<GasUsagePerDay[]> {
+    async getTopGasGuzzlersLastMonth(): Promise<GasUsage[]> {
         const query = `
-            SELECT sum(txs.gasused) as gas_used, txs.recipient as contract, blocks.base_fee
+            SELECT sum(txs.gasused) as gas_used, txs.recipient as contract 
             FROM txs
             JOIN blocks ON txs.hash = ANY (blocks.tx_hashes)
             WHERE iscontract = true
@@ -54,12 +54,32 @@ export class DB {
         `;
 
         const result = await this.pool.query(query);
-        return result.rows as GasUsagePerDay[];
+        return result.rows as GasUsage[];
+    }
+
+    // returns the base fee spent on txs for the top ten contracts
+    async getBaseFeeSpentOnContractsLastMonth(): Promise<> {
+        const query = `
+            SELECT sum(txs.gasused * blocks.basefee), txs.recipient as contract
+            FROM txs
+            JOIN blocks on txs.hash = ANY (blocks.tx_hashes)
+            WHERE contract = ANY (SELECT ) as 
+        `;
+    }
+
+    async getTotalGasUsageLastMonth(): Promise<number> {
+        const query = `
+            SELECT sum(gasused) as gasused
+            FROM txs
+            WHERE timestamp > now() - interval '30 day'
+        `;
+
+        const result = await this.pool.query(query);
+        return result.rows[0].gasused as number;
     }
 }
 
-export interface GasUsagePerDay {
-    ts: Date;
+export interface GasUsage {
     contract: string;
     gas_used: number;
 }
