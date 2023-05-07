@@ -6,7 +6,7 @@ import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, 
 import { Line } from 'react-chartjs-2';
 import dayjs from "dayjs";
 
-import { DB, GasUsage } from "../db";
+import { BaseFeeSpent, DB, GasUsage } from "../db";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,6 +18,7 @@ interface Props {
   txs: number[];
   users: number[];
   gasGuzzlers: GasUsage[];
+  baseFeeSpent: BaseFeeSpent[];
   totalGasUsage: number;
 }
 
@@ -91,10 +92,11 @@ export default function Home({ days, txs, users, gasGuzzlers, totalGasUsage }: P
             <tr>
               <th>Contract</th>
               <th>Gas Used</th>
+              <th>Fees</th>
             </tr>
           </thead>
           <tbody>
-            {gasGuzzlers.map((ele) => <tr><td><a target="_blank" href={`https://tuber.build/address/${ele.contract}`}>{ele.contract}</a></td><td>{`${(ele.gas_used / totalGasUsage * 100).toFixed(2)}%`}</td></tr>)}
+            {gasGuzzlers.map((ele) => <tr><td><a target="_blank" href={`https://tuber.build/address/${ele.contract}`}>{ele.contract}</a></td><td>{`${(ele.gas_used / totalGasUsage * 100).toFixed(2)}%`}</td><td>{(ele.base_fee_spent / 1e9).toFixed(2)} CANTO</td></tr>)}
           </tbody>
         </table>
       </div>

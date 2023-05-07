@@ -42,8 +42,10 @@ export class DB {
 
     // returns the 10 contracts that used up most gas in the last 30 days
     async getTopGasGuzzlersLastMonth(): Promise<GasUsage[]> {
+        // need to divide `base_fee` to not exceed the limit of `bigint`.
+        // 1e9 is the best choice sind gasprices start around 1,000e9
         const query = `
-            SELECT sum(txs.gasused) as gas_used, txs.recipient as contract 
+            SELECT sum(txs.gasused) as gas_used, sum(txs.gasused * (blocks.base_fee / 1e+9)) base_fee_spent, txs.recipient as contract 
             FROM txs
             JOIN blocks ON txs.hash = ANY (blocks.tx_hashes)
             WHERE iscontract = true
@@ -55,16 +57,6 @@ export class DB {
 
         const result = await this.pool.query(query);
         return result.rows as GasUsage[];
-    }
-
-    // returns the base fee spent on txs for the top ten contracts
-    async getBaseFeeSpentOnContractsLastMonth(): Promise<> {
-        const query = `
-            SELECT sum(txs.gasused * blocks.basefee), txs.recipient as contract
-            FROM txs
-            JOIN blocks on txs.hash = ANY (blocks.tx_hashes)
-            WHERE contract = ANY (SELECT ) as 
-        `;
     }
 
     async getTotalGasUsageLastMonth(): Promise<number> {
@@ -82,6 +74,7 @@ export class DB {
 export interface GasUsage {
     contract: string;
     gas_used: number;
+    base_fee_spent: number;
 }
 export interface TxsPerDay {
     ts: Date;
