@@ -1,12 +1,11 @@
 import { GetServerSideProps } from 'next';
 import { Inter } from 'next/font/google';
 
-// import Chart from 'chart.js/auto'
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, ChartOptions, Title } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import dayjs from "dayjs";
 
-import { BaseFeeSpent, DB, GasUsage } from "../db";
+import { DB, GasUsage } from "../db";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,7 +17,6 @@ interface Props {
   txs: number[];
   users: number[];
   gasGuzzlers: GasUsage[];
-  baseFeeSpent: BaseFeeSpent[];
   totalGasUsage: number;
 }
 
@@ -85,18 +83,18 @@ export default function Home({ days, txs, users, gasGuzzlers, totalGasUsage }: P
           />
         </div>
       </div>
-      <p className={"flex justify-center text-white"}>Top Gas Guzzlers in the last month</p>
+      <p className={"flex justify-center text-white"}>Top Gas Guzzlers in the 4 weeks</p>
       <div className="flex justify-center">
         <table className="table-auto border-spacing-2 border-separate">
           <thead>
             <tr>
               <th>Contract</th>
               <th>Gas Used</th>
-              <th>Fees</th>
+              <th>CSR</th>
             </tr>
           </thead>
           <tbody>
-            {gasGuzzlers.map((ele) => <tr><td><a target="_blank" href={`https://tuber.build/address/${ele.contract}`}>{ele.contract}</a></td><td>{`${(ele.gas_used / totalGasUsage * 100).toFixed(2)}%`}</td><td>{(ele.base_fee_spent / 1e9).toFixed(2)} CANTO</td></tr>)}
+            {gasGuzzlers.map((ele) => <tr><td><a target="_blank" href={`https://tuber.build/address/${ele.contract}`}>{ele.contract}</a></td><td>{`${(ele.gas_used / totalGasUsage * 100).toFixed(2)}%`}</td><td>{(ele.base_fee_spent / 1e9 * 0.2).toFixed(2)} CANTO</td></tr>)}
           </tbody>
         </table>
       </div>
